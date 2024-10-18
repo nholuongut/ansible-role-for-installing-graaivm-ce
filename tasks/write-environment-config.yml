@@ -1,0 +1,28 @@
+---
+- name: Install profile scripts (zypper)
+  become: yes
+  ansible.builtin.package:
+    name: aaa_base
+    state: present
+  when: ansible_pkg_mgr == 'zypper'
+
+# Set GRAALVM_HOME
+- name: Make sure /etc/profile.d exists
+  become: yes
+  ansible.builtin.file:
+    path: /etc/profile.d
+    state: directory
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'
+  when: graalvm_is_default_installation|bool
+
+- name: Export GRAALVM_HOME and add to PATH
+  become: yes
+  ansible.builtin.template:
+    src: graalvm.sh.j2
+    dest: /etc/profile.d/graalvm.sh
+    owner: root
+    group: root
+    mode: 'u=rw,go=r'
+  when: graalvm_is_default_installation|bool

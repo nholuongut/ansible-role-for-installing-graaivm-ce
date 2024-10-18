@@ -1,0 +1,49 @@
+---
+- name: Converge
+  hosts: all
+
+  pre_tasks:
+    - name: update apt cache
+      apt:
+        update_cache: yes
+      changed_when: no
+      when: ansible_pkg_mgr == 'apt'
+
+    - name: create local archive directory
+      file:
+        state: directory
+        mode: 'u=rwx,go=rx'
+        dest: '{{ graalvm_local_archive_dir }}'
+      delegate_to: localhost
+
+    - name: download GraalVM for offline install
+      get_url:
+        url: "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-19.3.0/graalvm-ce-java11-linux-amd64-19.3.0.tar.gz"
+        dest: '{{ graalvm_local_archive_dir }}/graalvm-19.3.0-java11.tar.gz'
+        force: no
+        timeout: '{{ graalvm_download_timeout_seconds }}'
+        mode: 'u=rw,go=r'
+      delegate_to: localhost
+
+
+  roles:
+    - role: ansible-role-graalvm
+      graalvm_java_version: '11'
+      graalvm_version: '19.3.0'
+      graalvm_use_local_archive: true
+      graalvm_redis_filename: 'graalvm-19.3.0-java11.tar.gz'
+      graalvm_redis_sha256sum: '238c5c21bb4aa292caf95b2aca592ce8c1be2f036d93af48cd865f67d558f907'
+
+  post_tasks:
+    - name: verify graalvm facts
+      assert:
+        that:
+          - ansible_local.graalvm.general.version is defined
+          - ansible_local.graalvm.general.java_version is defined
+          - ansible_local.graalvm.general.home is defined
+
+    - name: install find - required for tests (dnf)
+      dnf:
+        name: findutils
+        state: present
+      when: ansible_pkg_mgr == 'dnf'

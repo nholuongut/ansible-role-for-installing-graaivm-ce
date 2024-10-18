@@ -1,0 +1,28 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+  flake8
+
+platforms:
+  - name: ansible-role-graalvm-fedora-two-times
+    image: fedora:37
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+
+scenario:
+  name: fedora-graalvm-two-times
+
+verifier:
+  name: testinfra
+  directory: tests

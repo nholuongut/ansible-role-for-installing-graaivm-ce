@@ -1,0 +1,29 @@
+---
+galaxy_info:
+  role_name: graalvm
+  author: Alexander Rolfes
+  description: Role for installing the GraalVM CE.
+  license: MIT
+  min_ansible_version: '2.10'
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - jessie
+        - buster
+        - bullseye
+    - name: Fedora
+      versions:
+        - 37
+    - name: opensuse
+      versions:
+        - 15.1
+  galaxy_tags:
+    - graalvm
+    - development
+    - system
+dependencies: []
